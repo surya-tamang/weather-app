@@ -1,0 +1,13 @@
+form button i:hover {
+    background-color: rgb(80 7 36 / var(--tw-bg-opacity));
+    color: rgb(209 213 219 / var(--tw-bg-opacity));
+    transition: all 0.2s ease;
+}
+
+form input:focus {
+    outline: 2px solid rgb(80 7 36 / var(--tw-bg-opacity));
+}
+
+p.status {
+    text-decoration: overline;
+}
