@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './App.css'
+import { data } from 'autoprefixer';
 
 function App() {
 
@@ -12,34 +13,36 @@ function App() {
   const [img, setImg] = useState('02d');
   const [sunrise, setSunrie] = useState('--/--/--');
   const [sunset, setSunset] = useState('--/--/--');
+  const [error, setError] = useState()
 
-  function checkWeather(e) {
+  async function checkWeather(e) {
     e.preventDefault();
 
-    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=e17f41608443891b960c35777b109735`)
-      .then(response => response.json())
-      .then(data => {
+    try {
+      const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=e17f41608443891b960c35777b109735`);
+      const data = await response.json();
 
-        const sunUp = new Date(data.sys.sunrise * 1000);
-        const sunDown = new Date(data.sys.sunset * 1000);
+      const sunUp = new Date((data.sys.sunrise + data.timezone) * 1000).toUTCString().split(" ")[4];
+      const sunDown = new Date((data.sys.sunset + data.timezone) * 1000).toUTCString().split(" ")[4];
 
-        setCity(data.name);
-        setTemp(`${Math.round(data.main.temp)}\u00B0C`);
-        setSky(data.weather[0].main);
-        setHumidity(data.main.humidity + "%");
-        setWind(data.wind.speed + "m/s");
-        setImg(data.weather[0].icon);
-
-
-        const formatTime = (time) => {
-          return `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}`;
-        }
-
-        setSunrie(formatTime(sunUp));
-        setSunset(formatTime(sunDown));
+      setCity(data.name);
+      setTemp(`${Math.round(data.main.temp)}\u00B0C`);
+      setSky(data.weather[0].main);
+      setHumidity(data.main.humidity + "%");
+      setWind(data.wind.speed + "m/s");
+      setImg(data.weather[0].icon);
 
 
-      })
+      let sunUpTime = sunUp.split(":");
+      let sunDownTime = sunDown.split(":");
+
+      setSunrie(`${sunUpTime[0]}:${sunUpTime[1]} am`)
+      setSunset(`${sunDownTime[0]}:${sunDownTime[1]} am`)
+
+
+    } catch (error) {
+      setError("City not found")
+    }
   }
 
   return (
@@ -54,6 +57,7 @@ function App() {
             </button>
           </form>
           <div className="result w-full flex items-center justify-center flex-col">
+            <span className='text-red-600'>{error}</span>
             <img src={`https://openweathermap.org/img/wn/${img}@4x.png`} alt="weather image" className='h-40 w-40' />
             <h2 className='text-3xl font-bold'>{temp}</h2>
             <p className='font-semibold'>{city}</p>
