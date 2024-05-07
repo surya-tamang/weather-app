@@ -21,27 +21,34 @@ function App() {
     try {
       const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=e17f41608443891b960c35777b109735`);
       const data = await response.json();
+      console.log(response);
+      if (location == "") {
+        setError("Please enter city name")
+      } else if (!response.ok && response.status == 404) {
+        setError("City not found")
+      }
+      else {
+        const sunUp = new Date((data.sys.sunrise + data.timezone) * 1000).toUTCString().split(" ")[4];
+        const sunDown = new Date((data.sys.sunset + data.timezone) * 1000).toUTCString().split(" ")[4];
 
-      const sunUp = new Date((data.sys.sunrise + data.timezone) * 1000).toUTCString().split(" ")[4];
-      const sunDown = new Date((data.sys.sunset + data.timezone) * 1000).toUTCString().split(" ")[4];
-
-      setCity(data.name);
-      setTemp(`${Math.round(data.main.temp)}\u00B0C`);
-      setSky(data.weather[0].main);
-      setHumidity(data.main.humidity + "%");
-      setWind(data.wind.speed + "m/s");
-      setImg(data.weather[0].icon);
+        setCity(data.name);
+        setTemp(`${Math.round(data.main.temp)}\u00B0C`);
+        setSky(data.weather[0].main);
+        setHumidity(data.main.humidity + "%");
+        setWind(data.wind.speed + "m/s");
+        setImg(data.weather[0].icon);
 
 
-      let sunUpTime = sunUp.split(":");
-      let sunDownTime = sunDown.split(":");
+        let sunUpTime = sunUp.split(":");
+        let sunDownTime = sunDown.split(":");
 
-      setSunrie(`${sunUpTime[0]}:${sunUpTime[1]} am`)
-      setSunset(`${sunDownTime[0]}:${sunDownTime[1]} am`)
+        setSunrie(`${sunUpTime[0]}:${sunUpTime[1]} am`)
+        setSunset(`${sunDownTime[0]}:${sunDownTime[1]} pm`)
+      }
 
 
     } catch (error) {
-      setError("City not found")
+      console.log(error);
     }
   }
 
